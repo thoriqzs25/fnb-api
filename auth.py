@@ -14,9 +14,8 @@ def logIn():
     "name": json_data['name'],
     "password": json_data['password'],
   }
-  print(data, 'line 17')
 
-  cursor.execute(' SELECT * FROM user WHERE name=%s ', ("thoriqzs",))
+  cursor.execute(' SELECT * FROM user WHERE name=%s ', (data['name'],))
   resUser = jsonFormat(cursor)
 
   info = checkSessionAvailable(cursor, resUser)
@@ -30,7 +29,6 @@ def logIn():
   if (resUser):
     if (verifyUser(data['password'], resUser['password'])):
       token = jwt.encode({'user_id' : resUser['id'] }, 'superdupersecretkey')
-      print(token)
       try:
         cursor.execute(' INSERT INTO session(user_id, token) VALUES (%s, %s) ', (resUser['id'], token))
         mysql.connection.commit() 
@@ -46,7 +44,7 @@ def logIn():
     else:
       return "Wrong Username or Password", 401
 
-  return "Username Not Found", 404
+  return "No session found and no available username! Please sign in", 404
 
 @auth.route('/sign-in', methods=['POST'])
 def signIn():
@@ -70,14 +68,6 @@ def signIn():
     mysql.connection.commit()
     cursor.close()
     return "Success Creating New Account!", 201
-  # auth = request.authorization
-  # if (auth):
-  #   token = jwt.encode({'user' : auth.username }, 'superdupersecretkey')
-  #   print(jsonify({'token' : token}))
-
-  #   return jsonify({'token' : token})
-
-  # return make_response('Could not verify!', 401, {'WWW-Authenticate' : 'Basic realm="Login Required"'})
 
 def checkUserAvailable(cursor, data):
   cursor.execute(' SELECT * FROM user WHERE name=%s AND password=%s ', (data['name'], data['password']))
@@ -87,7 +77,9 @@ def checkUserAvailable(cursor, data):
 
 def checkSessionAvailable(cursor, data):
   print(data, 'line 87')
-  cursor.execute(' SELECT * FROM session WHERE user_id=%s ', (data['id'],))
-  res = jsonFormat(cursor)
+  res = 0
+  if (data != {}):
+    cursor.execute(' SELECT * FROM session WHERE user_id=%s ', (data['id'],))
+    res = jsonFormat(cursor)
 
   return res

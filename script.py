@@ -11,6 +11,9 @@ def encodeStr(ePass):
 def verifyUser(ePass, cPass):
   return bcrypt.checkpw((key+ePass).encode("utf-8"), cPass.encode("utf-8"))
 
+
+
+
 def jsonFormatArray(cursor):
   headers = [x[0] for x in cursor.description]
   data = cursor.fetchall()

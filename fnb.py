@@ -7,6 +7,13 @@ fnb = Blueprint('fnb', __name__)
 @fnb.route('/fnb', methods=['GET', 'POST'])
 def fnbDefault():
     cursor = mysql.connection.cursor()
+    auth_header = request.headers.get("Authorization")
+
+    valid = checkToken(auth_header, cursor)
+    print(valid, 'line 13')
+    
+    if not valid:
+        return "Token not valid", 404
 
     if (request.method == 'GET'):
         cursor.execute(' SELECT * FROM fnb ')
@@ -55,3 +62,14 @@ def fnById(id):
         cursor.execute(' DELETE FROM fnb WHERE id=%s ', (id))
 
         return "Deleted", 202
+
+
+def checkToken(token, cursor):
+    print(token, 'line 68')
+    cursor.execute(' SELECT * FROM session WHERE token=%s ', (token,))
+
+    res = jsonFormat(cursor)
+    print(res, 'line 72')
+
+    # cursor.close()
+    return res
