@@ -10,7 +10,6 @@ def fnbDefault():
     auth_header = request.headers.get("Authorization")
 
     valid = checkToken(auth_header, cursor)
-    print(valid, 'line 13')
     
     if not valid:
         return "Token not valid", 404
@@ -53,7 +52,7 @@ def fnById(id):
             "alamat": json_data['alamat'],
             "titik_koordinat": json_data['titik_koordinat'],
         }
-        print(data)
+        
         cursor.execute(' UPDATE fnb SET alamat=%s, nama=%s, titik_koordinat=%s WHERE id=%s', (data["alamat"], data["nama"], data["titik_koordinat"], id))
 
         return jsonify(data), 201
@@ -65,11 +64,8 @@ def fnById(id):
 
 
 def checkToken(token, cursor):
-    print(token, 'line 68')
     cursor.execute(' SELECT * FROM session WHERE token=%s ', (token,))
 
     res = jsonFormat(cursor)
-    print(res, 'line 72')
 
-    # cursor.close()
     return res

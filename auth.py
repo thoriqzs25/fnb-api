@@ -61,7 +61,6 @@ def signIn():
 
   else:
     encodedPass = encodeStr(data['password'])
-    print(encodedPass)
 
     cursor.execute(' INSERT INTO user(name, password) VALUES (%s, %s) ', (data['name'], encodedPass))
 
@@ -76,7 +75,6 @@ def checkUserAvailable(cursor, data):
   return res
 
 def checkSessionAvailable(cursor, data):
-  print(data, 'line 87')
   res = 0
   if (data != {}):
     cursor.execute(' SELECT * FROM session WHERE user_id=%s ', (data['id'],))
