@@ -36,6 +36,13 @@ def fnbDefault():
 @fnb.route('/fnb/<int:id>', methods=['GET', 'PUT', 'DELETE'])
 def fnById(id):
     cursor = mysql.connection.cursor()
+    auth_header = request.headers.get("Authorization")
+
+    valid = checkToken(auth_header, cursor)
+    
+    if not valid:
+        return "Token not valid", 404
+
 
     if (request.method == 'GET'):
         cursor.execute(' SELECT * FROM fnb WHERE id=%s ', (id,)) 
@@ -58,9 +65,9 @@ def fnById(id):
         return jsonify(data), 201
 
     elif (request.method == 'DELETE'):
-        cursor.execute(' DELETE FROM fnb WHERE id=%s ', (id))
+        cursor.execute(' DELETE FROM fnb WHERE id=%s ', (id,))
 
-        return "Deleted", 202
+        return "Deleted, have a nice day!", 202
 
 
 def checkToken(token, cursor):

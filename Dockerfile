@@ -9,7 +9,7 @@ COPY app.py /app/
 COPY auth.py /app/
 COPY database.py /app/
 COPY fnb.py /app/
-COPY scripts.py /app/
+COPY script.py /app/
 
 # Set the working directory to the API code
 WORKDIR /app

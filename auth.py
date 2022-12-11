@@ -69,8 +69,10 @@ def signIn():
     return "Success Creating New Account!", 201
 
 def checkUserAvailable(cursor, data):
-  cursor.execute(' SELECT * FROM user WHERE name=%s AND password=%s ', (data['name'], data['password']))
+  print(data)
+  cursor.execute(' SELECT * FROM user WHERE name=%s', (data['name'],))
   res = jsonFormat(cursor)
+  print(res)
 
   return res
 
