@@ -6,9 +6,9 @@ RUN pip install -r /tmp/requirements.txt
 
 # Copy the API code
 COPY app.py /app/
-COPY auth.py /app/
+COPY blueprints/auth.py /app/
 COPY database.py /app/
-COPY fnb.py /app/
+COPY blueprints/fnb.py /app/
 COPY script.py /app/
 
 # Set the working directory to the API code
