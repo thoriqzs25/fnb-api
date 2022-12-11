@@ -70,7 +70,11 @@ def fnById(id):
         return "Deleted, have a nice day!", 202
 
 
-def checkToken(token, cursor):
+def checkToken(bearer, cursor):
+    try:
+        token = bearer.split()[1]
+    except:
+        return False
     cursor.execute(' SELECT * FROM session WHERE token=%s ', (token,))
 
     res = jsonFormat(cursor)
