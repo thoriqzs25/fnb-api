@@ -1,6 +1,8 @@
 import bcrypt
 
-key = "thoriqganteng"
+key = 'thoriqganteng'
+tokenKey = 'superdupersecretkey'
+dateFormat = '%Y-%m-%dT%H:%M:%S'
 
 # ePass --> enteredPassword
 # cPass --> currentPassword

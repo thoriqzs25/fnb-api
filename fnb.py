@@ -1,6 +1,9 @@
 from flask import Blueprint, jsonify, request
 from database import mysql
 from script import jsonFormatArray, jsonFormat
+from script import tokenKey, dateFormat
+import jwt
+from datetime import datetime
 
 fnb = Blueprint('fnb', __name__)
 
@@ -9,7 +12,7 @@ def fnbDefault():
     cursor = mysql.connection.cursor()
     auth_header = request.headers.get("Authorization")
 
-    valid = checkToken(auth_header, cursor)
+    valid = checkToken(auth_header)
     
     if not valid:
         return "Token not valid", 404
@@ -38,7 +41,7 @@ def fnById(id):
     cursor = mysql.connection.cursor()
     auth_header = request.headers.get("Authorization")
 
-    valid = checkToken(auth_header, cursor)
+    valid = checkToken(auth_header)
     
     if not valid:
         return "Token not valid", 404
@@ -70,9 +73,15 @@ def fnById(id):
         return "Deleted, have a nice day!", 202
 
 
-def checkToken(token, cursor):
-    cursor.execute(' SELECT * FROM session WHERE token=%s ', (token,))
+def checkToken(bearer):
+    try:
+        token = bearer.split()[1]
+        decodedToken = jwt.decode(token, tokenKey, algorithms=['HS256'])
+        date_str = decodedToken['exp_date']
+        tokenDate = datetime.strptime(date_str, dateFormat)
+        if (tokenDate < datetime.now()):
+            raise
 
-    res = jsonFormat(cursor)
-
-    return res
+        return True
+    except:
+        return False

@@ -1,7 +1,8 @@
 from flask import Blueprint, jsonify, request, make_response
 from database import mysql
 import jwt
-from script import verifyUser, jsonFormat, encodeStr
+from script import verifyUser, jsonFormat, encodeStr, tokenKey, dateFormat
+from datetime import datetime, timedelta
 
 auth = Blueprint('auth', __name__)
 
@@ -18,33 +19,22 @@ def logIn():
   cursor.execute(' SELECT * FROM user WHERE name=%s ', (data['name'],))
   resUser = jsonFormat(cursor)
 
-  info = checkSessionAvailable(cursor, resUser)
-  if (info):
-    return jsonify(
-      {
-        'message': 'We found your session have already started! Happy coding :D', 
-        'token' : info['token']
-      }), 200
-
   if (resUser):
     if (verifyUser(data['password'], resUser['password'])):
-      token = jwt.encode({'user_id' : resUser['id'] }, 'superdupersecretkey')
-      try:
-        cursor.execute(' INSERT INTO session(user_id, token) VALUES (%s, %s) ', (resUser['id'], token))
-        mysql.connection.commit() 
-        cursor.close()
-      except:
-        return "Unable to make new session! Your session have already started"
+      date = datetime.now() + timedelta(days=7)
+      date_str = date.strftime(dateFormat)
+      token = jwt.encode({'exp_date' : date_str}, tokenKey)
+    
       return jsonify(
         {
-          'message': 'Please save this token and use it to access our provided API!', 
+          'message': 'Please save this token and use it to access our provided API! This token will last for 7 Days',
           'token' : token
         }), 201
     
     else:
       return "Wrong Username or Password", 401
 
-  return "No session found and no available username! Please sign in", 404
+  return "No available username! Please sign in", 404
 
 @auth.route('/sign-in', methods=['POST'])
 def signIn():
@@ -73,13 +63,5 @@ def checkUserAvailable(cursor, data):
   cursor.execute(' SELECT * FROM user WHERE name=%s', (data['name'],))
   res = jsonFormat(cursor)
   print(res)
-
-  return res
-
-def checkSessionAvailable(cursor, data):
-  res = 0
-  if (data != {}):
-    cursor.execute(' SELECT * FROM session WHERE user_id=%s ', (data['id'],))
-    res = jsonFormat(cursor)
 
   return res
