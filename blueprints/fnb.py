@@ -1,9 +1,12 @@
 from flask import Blueprint, jsonify, request
 from database import mysql
 from script import jsonFormatArray, jsonFormat
+from flask_restx import Api, Namespace, Resource, fields
 
 fnb = Blueprint('fnb', __name__)
+api = Namespace('fnb', description='Cats related operations')
 
+@api.route('/fnb')
 @fnb.route('/fnb', methods=['GET', 'POST'])
 def fnbDefault():
     cursor = mysql.connection.cursor()
