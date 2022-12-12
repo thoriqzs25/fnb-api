@@ -1,8 +1,9 @@
-from flask import Blueprint, jsonify, request, make_response
+from flask import Blueprint, jsonify, request, make_response, session
 from database import mysql
 import jwt
-from script import verifyUser, jsonFormat, encodeStr, tokenKey, dateFormat
+from script import verifyUser, jsonFormat, encodeStr, tokenKey, dateFormat, otpHandler
 from datetime import datetime, timedelta
+import re
 
 auth = Blueprint('auth', __name__)
 
@@ -12,11 +13,11 @@ def logIn():
   json_data = request.json
 
   data = {
-    "name": json_data['name'],
+    "email": json_data['email'],
     "password": json_data['password'],
   }
 
-  cursor.execute(' SELECT * FROM user WHERE name=%s ', (data['name'],))
+  cursor.execute(' SELECT * FROM user WHERE email=%s ', (data['email'],))
   resUser = jsonFormat(cursor)
 
   if (resUser):
@@ -32,36 +33,82 @@ def logIn():
         }), 201
     
     else:
-      return "Wrong Username or Password", 401
+      return "Wrong Email or Password", 401
 
-  return "No available username! Please sign in", 404
+  return "No available user! Please sign in", 404
 
 @auth.route('/sign-in', methods=['POST'])
 def signIn():
+
   cursor = mysql.connection.cursor()
   json_data = request.json
 
+  otp = request.args.get('otp')
+  if (otp):
+    return checkOTP(otp)
+
   data = {
-    "name": json_data['name'],
+    "email": json_data['email'],
     "password": json_data['password'],
   }
+  session['user_cred'] = data
+
+  if not validEmail(data['email']):
+    return "Please enter a valid Email", 401
 
   if checkUserAvailable(cursor, data):
-    return "Your Username or Password is already being used!", 401
+    return "Your Email is already being used!", 401
 
   else:
-    encodedPass = encodeStr(data['password'])
+    try:
+      res = otpHandler(data)
+    except:
+      return "Failed to send OTP! Please retry!", 400
+    return res, 200
 
-    cursor.execute(' INSERT INTO user(name, password) VALUES (%s, %s) ', (data['name'], encodedPass))
+def checkOTP(otp):
+  sessionOtp = session.get('otp')
+  if (otp == sessionOtp):
+    try:
+      createUser()
+    except:
+      return "Failed to create user", 400
+    
+    session.clear()
+    return "Success creating new account!", 201
 
-    mysql.connection.commit()
-    cursor.close()
-    return "Success Creating New Account!", 201
+  else: 
+    return "Wrong OTP!", 200
+
+def createUser():
+  cursor = mysql.connection.cursor()
+  data = session.get('user_cred')
+  print(data, 'line 89 DATA')
+
+  encodedPass = encodeStr(data['password'])
+
+  cursor.execute(' INSERT INTO user(email, password) VALUES (%s, %s) ', (data['email'], encodedPass))
+
+  mysql.connection.commit()
+  cursor.close()
 
 def checkUserAvailable(cursor, data):
-  print(data)
-  cursor.execute(' SELECT * FROM user WHERE name=%s', (data['name'],))
+  cursor.execute(' SELECT * FROM user WHERE email=%s', (data['email'],))
   res = jsonFormat(cursor)
-  print(res)
 
   return res
+
+def validEmail(email):
+    regex = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+    if re.match(regex, email):
+        return True
+    return False
+
+@auth.route('/clear')
+def clear():
+  session.clear()
+  return "Clearing session!", 200
+
+@auth.route('/check')
+def check():
+  return jsonify(session), 200

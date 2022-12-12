@@ -28,7 +28,7 @@ def fnbDefault():
     elif (request.method == 'POST'):
         json_data = request.json
         data = {
-            "nama": json_data['name'],
+            "nama": json_data['nama'],
             "alamat": json_data['alamat'],
             "titik_koordinat": json_data['titik_koordinat'],
         }
@@ -58,7 +58,7 @@ def fnById(id):
     elif (request.method == 'PUT'):     
         json_data = request.json
         data = {
-            "nama": json_data['name'],
+            "nama": json_data['nama'],
             "alamat": json_data['alamat'],
             "titik_koordinat": json_data['titik_koordinat'],
         }
