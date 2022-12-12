@@ -19,7 +19,24 @@ def verifyUser(ePass, cPass):
 
 def otpHandler(data):
   otp = secrets.token_hex(3)
-  session["otp"] = otp  # Store the OTP in the session
+  ses = session.get('session')
+  
+  payload = {
+    'data': data,
+    'otp': otp
+  }
+
+  if (ses):
+    for item in ses:
+      if (item['data'] == data):
+        return "OTP already sent, please check your email!"
+    ses.append(payload)
+    session['session'] = ses
+
+  else:
+    session['session'] = [payload]
+
+
   msg = Message("Your OTP, Happy Coding!", recipients=[data['email']])
   msg.body = f"Your OTP is: {otp}"
   mail.send(msg)

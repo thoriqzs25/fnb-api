@@ -43,15 +43,14 @@ def signIn():
   cursor = mysql.connection.cursor()
   json_data = request.json
 
-  otp = request.args.get('otp')
-  if (otp):
-    return checkOTP(otp)
-
   data = {
     "email": json_data['email'],
     "password": json_data['password'],
   }
-  session['user_cred'] = data
+
+  otp = request.args.get('otp')
+  if (otp):
+    return checkOTP(otp, data['email'])
 
   if not validEmail(data['email']):
     return "Please enter a valid Email", 401
@@ -60,31 +59,38 @@ def signIn():
     return "Your Email is already being used!", 401
 
   else:
-    try:
-      res = otpHandler(data)
-    except:
-      return "Failed to send OTP! Please retry!", 400
+    # try:
+    res = otpHandler(data)
+    # except:
+    # return "Failed to send OTP! Please retry!", 400
     return res, 200
 
-def checkOTP(otp):
-  sessionOtp = session.get('otp')
-  if (otp == sessionOtp):
-    try:
-      createUser()
-    except:
-      return "Failed to create user", 400
-    
-    session.clear()
-    return "Success creating new account!", 201
+def checkOTP(otp, email):
 
-  else: 
-    return "Wrong OTP!", 200
+  print(email)
+  ses = session.get('session')
 
-def createUser():
+  for item in ses:
+    sessionEmail = item['data']['email']
+    sessionOtp = item['otp']
+    if (sessionEmail == email):
+      if (otp == sessionOtp):
+        try:
+          createUser(item['data'])
+          newSes = filter(lambda x: x != item, ses)
+          session['session'] = list(newSes)
+        except:
+          return "Failed to create user", 400
+        
+        return "Success creating new account!", 201
+
+      else: 
+        return "Wrong OTP!", 200
+
+  return "Make sure to sign in!", 400
+
+def createUser(data):
   cursor = mysql.connection.cursor()
-  data = session.get('user_cred')
-  print(data, 'line 89 DATA')
-
   encodedPass = encodeStr(data['password'])
 
   cursor.execute(' INSERT INTO user(email, password) VALUES (%s, %s) ', (data['email'], encodedPass))
