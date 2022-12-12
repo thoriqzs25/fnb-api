@@ -66,26 +66,25 @@ def signIn():
     return res, 200
 
 def checkOTP(otp, email):
-
-  print(email)
   ses = session.get('session')
 
-  for item in ses:
-    sessionEmail = item['data']['email']
-    sessionOtp = item['otp']
-    if (sessionEmail == email):
-      if (otp == sessionOtp):
-        try:
-          createUser(item['data'])
-          newSes = filter(lambda x: x != item, ses)
-          session['session'] = list(newSes)
-        except:
-          return "Failed to create user", 400
-        
-        return "Success creating new account!", 201
+  if (ses):
+    for item in ses:
+      sessionEmail = item['data']['email']
+      sessionOtp = item['otp']
+      if (sessionEmail == email):
+        if (otp == sessionOtp):
+          try:
+            createUser(item['data'])
+            newSes = filter(lambda x: x != item, ses)
+            session['session'] = list(newSes)
+          except:
+            return "Failed to create user", 400
+          
+          return "Success creating new account!", 201
 
-      else: 
-        return "Wrong OTP!", 200
+        else: 
+          return "Wrong OTP!", 200
 
   return "Make sure to sign in!", 400
 
@@ -117,4 +116,7 @@ def clear():
 
 @auth.route('/check')
 def check():
-  return jsonify(session), 200
+  res = session
+  if not (session):
+    res = {}
+  return jsonify(res), 200
