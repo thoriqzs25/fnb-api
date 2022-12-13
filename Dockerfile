@@ -10,6 +10,8 @@ COPY auth.py /app/
 COPY database.py /app/
 COPY fnb.py /app/
 COPY script.py /app/
+COPY key.py /app/
+COPY otp.py /app/
 
 # Set the working directory to the API code
 WORKDIR /app
