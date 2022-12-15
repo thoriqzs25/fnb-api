@@ -12,7 +12,7 @@ COPY . /app/
 WORKDIR /app/
 
 # Expose the API port
-EXPOSE 5000
+# EXPOSE 5000
 
 # Run the API
 # CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 app:app

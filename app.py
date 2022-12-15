@@ -12,9 +12,9 @@ app.register_blueprint(fnb)
 
 app.config["SECRET_KEY"] = "secret"
 
-app.config['MYSQL_HOST'] = '34.101.242.101'
+app.config['MYSQL_HOST'] = 'mysql'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = ''
+app.config['MYSQL_PASSWORD'] = 'thoriq'
 app.config['MYSQL_DB'] = 'fnb_api'
 # app.config['MYSQL_UNIX_SOCKET'] = '/Applications/XAMPP/xamppfiles/var/mysql/mysql.sock'
 app.config["FLASK_DEBUG"] = 1
