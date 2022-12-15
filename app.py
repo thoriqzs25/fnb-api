@@ -12,7 +12,7 @@ app.register_blueprint(fnb)
 
 app.config["SECRET_KEY"] = "secret"
 
-app.config['MYSQL_HOST'] = 'mysql'
+app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = 'thoriq'
 app.config['MYSQL_DB'] = 'fnb_api'
