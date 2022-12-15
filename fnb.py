@@ -109,5 +109,5 @@ def checkToken(bearer):
 def createCol():
     cursor = mysql.connection.cursor()
 
-    cursor.execute('ALTER TABLE hotel ADD kategori VARCHAR(64)')
+    cursor.execute('ALTER TABLE fnb ADD kategori VARCHAR(64)')
     mysql.connection.commit()
