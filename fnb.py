@@ -90,24 +90,43 @@ def checkToken(bearer):
     except:
         return False
 
-# @app.route('/dev/getlatlong', methods=['GET'])
-# def manipulateDb():
-#     cursor = mysql.connection.cursor()
+@fnb.route('/dev/addkategori', methods=['GET'])
+def manipulateDb():
+    cursor = mysql.connection.cursor()
     
-#     cursor.execute('SELECT * FROM hotel')
-#     hotelData = jsonFormatArray(cursor)
+    cursor.execute('SELECT * FROM fnb')
+    fnbData = jsonFormatArray(cursor)
 
-#     for hotel in hotelData:
-#         coor = getLatLong(hotel['Alamat_Hotel'])
-#         if (coor != {}):
-#             cursor.execute('UPDATE hotel SET latitude=%s, longitude=%s WHERE id>237', (coor['latitude'], coor['longitude'], hotel['id']))
-#             mysql.connection.commit()
-#         else:
-#             print('lat long NULL', hotel["id"], hotel["Nama_Hotel"])
+    for fnb in fnbData:
+        nama = str(fnb['nama'].lower()) 
+        if (('resto' in nama) or ('restaurant' in nama) or 'kitchen' in nama):
+            print('RESTO')
+            cat = 'Restoran'
+        elif (('kafe' in nama) or ('coffee' in nama) or ('cafe' in nama) or 'kopi' in nama):
+            cat = 'Cafe'
+        elif (('warung' in nama)):
+            cat = 'Warung'
+        elif (('rm' in nama) or ('rumah' in nama)):
+            cat = 'Rumah Makan'
+        elif (('bbq' in nama) or ('suki' in nama)):
+            cat = 'AYCE'
+        else:
+            cat = 'DLL'
+
+        print(cat, fnb['id'])
+        
+        addKategori(cat, fnb['id'])
+
+    return "Sukses!!"
 
 @fnb.route('/dev/createcol', methods=['GET'])
 def createCol():
     cursor = mysql.connection.cursor()
 
-    cursor.execute('ALTER TABLE fnb ADD kategori VARCHAR(64)')
+    cursor.execute('ALTER TABLE fnb ADD COLUMN kategori VARCHAR(64)')
+    mysql.connection.commit()
+
+def addKategori (kategori, id):
+    cursor = mysql.connection.cursor()
+    cursor.execute('UPDATE fnb SET kategori=%s WHERE id=%s', (kategori, id))
     mysql.connection.commit()
