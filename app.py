@@ -4,6 +4,7 @@ from database import mysql
 from fnb import fnb
 from auth import auth
 from otp import mail
+from geopy.geocoders import Nominatim
 
 app = Flask(__name__)
  
@@ -14,9 +15,9 @@ app.config["SECRET_KEY"] = "secret"
 
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'thoriq'
-app.config['MYSQL_DB'] = 'fnb_api'
-# app.config['MYSQL_UNIX_SOCKET'] = '/Applications/XAMPP/xamppfiles/var/mysql/mysql.sock'
+app.config['MYSQL_PASSWORD'] = ''
+app.config['MYSQL_DB'] = 'tubes_tst'
+app.config['MYSQL_UNIX_SOCKET'] = '/Applications/XAMPP/xamppfiles/var/mysql/mysql.sock'
 app.config["FLASK_DEBUG"] = 1
 
 app.config["MAIL_PORT"] = 587
@@ -32,6 +33,17 @@ mail.init_app(app)
 @app.route('/', methods=['GET'])
 def default():
     return "Hello User"
+
+@app.route('/loc', methods=['GET'])
+def loc():
+    geolocator = Nominatim(user_agent="aplikasi-saya")
+
+# Konversi alamat jalan menjadi koordinat geografis
+    lokasi = geolocator.geocode("Jl. Pemuda No. 3, Bandung, Jawa Barat")
+
+    # Cetak latitude dan longitude dari alamat tersebut
+    print(lokasi.latitude, lokasi.longitude)
+    return "latlong"
 
 @app.route('/db', methods=['GET'])
 def user():
