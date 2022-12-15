@@ -105,7 +105,7 @@ def checkToken(bearer):
 #         else:
 #             print('lat long NULL', hotel["id"], hotel["Nama_Hotel"])
 
-@app.route('/dev/createcol', methods=['GET'])
+@fnb.route('/dev/createcol', methods=['GET'])
 def createCol():
     cursor = mysql.connection.cursor()
 
