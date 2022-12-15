@@ -4,6 +4,7 @@ import jwt
 from script import verifyUser, jsonFormat, encodeStr, tokenKey, dateFormat, otpHandler
 from datetime import datetime, timedelta
 import re
+import requests
 
 auth = Blueprint('auth', __name__)
 
@@ -41,6 +42,8 @@ def logIn():
 def signIn():
 
   cursor = mysql.connection.cursor()
+  # request = requests.post('https://tubes-tst-fzhxhn4cmq-as.a.run.app/sign-in', files = data)
+  # request = requests.post('http://0.0.0.0:5000/sign-in', files = data)
   json_data = request.json
 
   data = {

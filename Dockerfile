@@ -4,20 +4,16 @@ FROM python:3.10
 COPY requirements.txt /tmp/
 RUN pip install -r /tmp/requirements.txt
 
+ENV PYTHONUNBUFFERED True
 # Copy the API code
-COPY app.py /app/
-COPY auth.py /app/
-COPY database.py /app/
-COPY fnb.py /app/
-COPY script.py /app/
-COPY key.py /app/
-COPY otp.py /app/
+COPY . /app/
 
 # Set the working directory to the API code
-WORKDIR /app
+WORKDIR /app/
 
 # Expose the API port
 EXPOSE 5000
 
 # Run the API
-CMD ["flask", "run"]
+# CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 app:app
+CMD ["gunicorn", "--bind", "127.0.0.1:5000", "app:app"]

@@ -1,0 +1,23 @@
+version: '3.9'
+services:
+  mysql:
+    image: mysql:8.0
+    volumes:
+      - mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: thoriq
+      MYSQL_DATABASE: fnb_api
+    restart: always
+
+  flask:
+    container_name: flask
+    depends_on:
+      - mysql
+    build:
+      context: ../
+      dockerfile: Dockerfile
+    ports:
+      - 80:5000
+
+volumes:
+  mysql:
